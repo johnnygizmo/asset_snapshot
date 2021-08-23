@@ -1,12 +1,21 @@
 import bpy
+from bpy.types import Operator
+from bpy.props import (
+        # FloatProperty,
+        IntProperty,
+        # BoolProperty,
+        # StringProperty,
+        # FloatVectorProperty
+        )
 import os
+
 bl_info = {
     'name': 'Asset Snapshot',
     'category': 'View3d',
     "blender": (3, 0, 0),
 }
     
-def snapshot(context,ob):
+def snapshot(self,context,ob):
     #Save some basic settings
     areatype = context.area.type
     camera = bpy.context.scene.camera  
@@ -15,10 +24,11 @@ def snapshot(context,ob):
     hold_x = bpy.context.scene.render.resolution_x
     hold_y = bpy.context.scene.render.resolution_y 
     filepath = bpy.context.scene.render.filepath
-    
+
+
     # Change Settings
-    bpy.context.scene.render.resolution_y = 250
-    bpy.context.scene.render.resolution_x = 250
+    bpy.context.scene.render.resolution_y = self.resolution
+    bpy.context.scene.render.resolution_x = self.resolution
     if bpy.ops.view3d.camera_to_view.poll():
         bpy.ops.view3d.camera_to_view()  
     bpy.context.scene.render.filepath = os.path.join("/tmp", ob.name) 
@@ -41,13 +51,21 @@ def snapshot(context,ob):
     camera.rotation_euler = camerarot
     bpy.context.scene.render.filepath = filepath
     bpy.ops.view3d.view_camera()
-    
-class AssetSnapshotCollection(bpy.types.Operator):
+
+class AssetSnapshotCollection(Operator):
     """Create a preview of a collection"""
     bl_idname = "view3d.asset_snaphot_collection"
     bl_label = "Asset Snapshot - Collection"
     bl_options = {'REGISTER', 'UNDO'}
 
+    resolution: IntProperty(
+            name="Preview Resolution",
+            description="Resolution to render the preview",
+            min=1,
+            soft_max=500,
+            default=250
+            )
+    
     @classmethod
     def poll(cls, context):
         if context.area.type != 'VIEW_3D':
@@ -59,14 +77,22 @@ class AssetSnapshotCollection(bpy.types.Operator):
         return True
 
     def execute(self, context):
-        snapshot(context,context.collection)
+        snapshot(self, context,context.collection)
         return {'FINISHED'}
      
-class AssetSnapshotObject(bpy.types.Operator):
+class AssetSnapshotObject(Operator):
     """Create an asset preview of an object"""
     bl_idname = "view3d.object_preview"
     bl_label = "Asset Snapshot - Object"
     bl_options = {'REGISTER', 'UNDO'}
+
+    resolution: IntProperty(
+            name="Preview Resolution",
+            description="Resolution to render the preview",
+            min=1,
+            soft_max=500,
+            default=250
+            )
 
     @classmethod
     def poll(cls, context):
@@ -79,7 +105,7 @@ class AssetSnapshotObject(bpy.types.Operator):
 
     def execute(self, context):
         print(context.active_object)
-        snapshot(context, context.active_object)
+        snapshot(self, context, context.active_object)
         return {'FINISHED'}
 
 
