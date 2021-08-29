@@ -98,14 +98,15 @@ class AssetSnapshotObject(Operator):
     def poll(cls, context):
         if context.area.type != 'VIEW_3D':
             return False
-        if context.active_object == None:
+        #if context.active_object == None:
+        if context.view_layer.objects.active == None:
             return False
 
         return True
 
     def execute(self, context):
-        print(context.active_object)
-        snapshot(self, context, context.active_object)
+        #snapshot(self, context, context.active_object)
+        snapshot(self, context, bpy.context.view_layer.objects.active)
         return {'FINISHED'}
 
 
