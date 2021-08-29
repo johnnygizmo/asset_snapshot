@@ -2,7 +2,9 @@
 
 A Blender python script for getting asset browser custom preview images for objects and collections.
 
-Video Demo:  [![Alt text](https://img.youtube.com/vi/d0D8DuqpRt0/0.jpg)](https://www.youtube.com/watch?v=d0D8DuqpRt0)  
+Video Demo:
+[![Alt text](https://img.youtube.com/vi/d0D8DuqpRt0/0.jpg)](https://www.youtube.com/watch?v=d0D8DuqpRt0)  
+
 
 Usage: 
  - Line up the object or collection in a viewport
