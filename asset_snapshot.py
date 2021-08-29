@@ -63,7 +63,7 @@ class AssetSnapshotCollection(Operator):
             description="Resolution to render the preview",
             min=1,
             soft_max=500,
-            default=250
+            default=256
             )
     
     @classmethod
