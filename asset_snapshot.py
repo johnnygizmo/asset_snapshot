@@ -18,7 +18,10 @@ bl_info = {
 def snapshot(self,context,ob):
     #Save some basic settings
     areatype = context.area.type
-    camera = bpy.context.scene.camera  
+    camera = bpy.context.scene.camera
+    if camera == None:
+        bpy.ops.object.camera_add()
+        camera = bpy.context.scene.camera
     camerapos = camera.location.copy()
     camerarot = camera.rotation_euler.copy()
     hold_x = bpy.context.scene.render.resolution_x
@@ -34,6 +37,7 @@ def snapshot(self,context,ob):
     bpy.context.scene.render.filepath = os.path.join("/tmp", ob.name) 
     file = os.path.join("/tmp", ob.name)+".png"
 
+
     #Render File, Mark Asset and Set Image
     bpy.ops.render.render(write_still = True)
     ob.asset_mark()
@@ -41,6 +45,7 @@ def snapshot(self,context,ob):
     context.area.type = 'FILE_BROWSER'
     override['id'] = ob
     bpy.ops.ed.lib_id_load_custom_preview(override,filepath=file)
+    
     
     #Cleanup
     context.area.type = areatype
@@ -57,7 +62,6 @@ class AssetSnapshotCollection(Operator):
     bl_idname = "view3d.asset_snaphot_collection"
     bl_label = "Asset Snapshot - Collection"
     bl_options = {'REGISTER', 'UNDO'}
-
     resolution: IntProperty(
             name="Preview Resolution",
             description="Resolution to render the preview",
@@ -65,17 +69,13 @@ class AssetSnapshotCollection(Operator):
             soft_max=500,
             default=256
             )
-    
     @classmethod
     def poll(cls, context):
         if context.area.type != 'VIEW_3D':
             return False
-        
         if context.collection == None:
             return False
-
         return True
-
     def execute(self, context):
         snapshot(self, context,context.collection)
         return {'FINISHED'}
@@ -85,7 +85,6 @@ class AssetSnapshotObject(Operator):
     bl_idname = "view3d.object_preview"
     bl_label = "Asset Snapshot - Object"
     bl_options = {'REGISTER', 'UNDO'}
-
     resolution: IntProperty(
             name="Preview Resolution",
             description="Resolution to render the preview",
@@ -93,16 +92,13 @@ class AssetSnapshotObject(Operator):
             soft_max=500,
             default=250
             )
-
     @classmethod
     def poll(cls, context):
         if context.area.type != 'VIEW_3D':
             return False
         if context.view_layer.objects.active == None:
             return False
-
         return True
-
     def execute(self, context):
         snapshot(self, context, bpy.context.view_layer.objects.active)
         return {'FINISHED'}
@@ -118,6 +114,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-
-    # test call
-    #bpy.ops.view3d.collection_asset_preview()
