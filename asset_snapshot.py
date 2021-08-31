@@ -27,7 +27,13 @@ def snapshot(self,context,ob):
     hold_x = bpy.context.scene.render.resolution_x
     hold_y = bpy.context.scene.render.resolution_y 
     filepath = bpy.context.scene.render.filepath
-
+    
+    # Find objects that are hidden in viewport and hide them in render
+    tempHidden = []
+    for o in bpy.data.objects:
+        if o.hide_get() == True:
+            o.hide_render = True
+            tempHidden.append(o)
 
     # Change Settings
     bpy.context.scene.render.resolution_y = self.resolution
@@ -46,6 +52,9 @@ def snapshot(self,context,ob):
     override['id'] = ob
     bpy.ops.ed.lib_id_load_custom_preview(override,filepath=file)
     
+    # Unhide the objects hidden for the render
+    for o in tempHidden:
+        o.hide_render = False
     
     #Cleanup
     context.area.type = areatype
