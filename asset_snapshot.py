@@ -127,6 +127,7 @@ class OBJECT_PT_panel(Panel):
         scene = context.scene
         tool = scene.asset_snapshot
         layout.prop(tool, "resolution")
+        layout.label(text='Sometimes crashes. SAVE YOUR FILES', icon="ERROR")
         layout.operator("view3d.object_preview")
         layout.operator("view3d.asset_snaphot_collection")
 
