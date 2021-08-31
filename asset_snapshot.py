@@ -14,19 +14,20 @@ bl_info = {
     'category': 'View3d',
     "blender": (3, 0, 0),
 }
-    
+
+
 def snapshot(self,context,ob):
     #Save some basic settings
     areatype = context.area.type
-    camera = bpy.context.scene.camera
-    if camera == None:
+    if bpy.context.scene.camera == None:
         bpy.ops.object.camera_add()
-        camera = bpy.context.scene.camera
+    camera = bpy.context.scene.camera    
     camerapos = camera.location.copy()
     camerarot = camera.rotation_euler.copy()
     hold_x = bpy.context.scene.render.resolution_x
     hold_y = bpy.context.scene.render.resolution_y 
     filepath = bpy.context.scene.render.filepath
+    
     
     # Find objects that are hidden in viewport and hide them in render
     tempHidden = []
@@ -34,7 +35,8 @@ def snapshot(self,context,ob):
         if o.hide_get() == True:
             o.hide_render = True
             tempHidden.append(o)
-
+    
+    
     # Change Settings
     bpy.context.scene.render.resolution_y = self.resolution
     bpy.context.scene.render.resolution_x = self.resolution
@@ -42,8 +44,8 @@ def snapshot(self,context,ob):
         bpy.ops.view3d.camera_to_view()  
     bpy.context.scene.render.filepath = os.path.join("/tmp", ob.name) 
     file = os.path.join("/tmp", ob.name)+".png"
-
-
+    
+    
     #Render File, Mark Asset and Set Image
     bpy.ops.render.render(write_still = True)
     ob.asset_mark()
@@ -52,9 +54,11 @@ def snapshot(self,context,ob):
     override['id'] = ob
     bpy.ops.ed.lib_id_load_custom_preview(override,filepath=file)
     
+    
     # Unhide the objects hidden for the render
     for o in tempHidden:
         o.hide_render = False
+    
     
     #Cleanup
     context.area.type = areatype
@@ -65,6 +69,7 @@ def snapshot(self,context,ob):
     camera.rotation_euler = camerarot
     bpy.context.scene.render.filepath = filepath
     bpy.ops.view3d.view_camera()
+
 
 class AssetSnapshotCollection(Operator):
     """Create a preview of a collection"""
@@ -88,7 +93,8 @@ class AssetSnapshotCollection(Operator):
     def execute(self, context):
         snapshot(self, context,context.collection)
         return {'FINISHED'}
-     
+
+
 class AssetSnapshotObject(Operator):
     """Create an asset preview of an object"""
     bl_idname = "view3d.object_preview"
