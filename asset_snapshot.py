@@ -1,4 +1,5 @@
 import bpy
+import time
 from bpy.types import (Panel,
                        # Menu,
                        Operator,
@@ -60,6 +61,7 @@ def snapshot(self,context,ob):
         o.hide_render = False
     #Cleanup
     context.area.type = areatype
+    time.sleep(0.75)
     os.unlink(file)
     bpy.context.scene.render.resolution_y = hold_y
     bpy.context.scene.render.resolution_x = hold_x
