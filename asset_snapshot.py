@@ -1,5 +1,4 @@
 import bpy
-import time
 from bpy.types import (Panel,
                        # Menu,
                        Operator,
@@ -14,7 +13,7 @@ from bpy.props import (
         PointerProperty,
         )
 import os
-
+import random
 
 bl_info = {
     'name': 'Asset Snapshot',
@@ -27,15 +26,15 @@ def snapshot(self,context,ob):
     scene = context.scene
     tool = scene.asset_snapshot
     #Save some basic settings
-    areatype = context.area.type
+    hold_areatype = context.area.type
     if bpy.context.scene.camera == None:
         bpy.ops.object.camera_add()
     camera = bpy.context.scene.camera    
-    camerapos = camera.location.copy()
-    camerarot = camera.rotation_euler.copy()
+    hold_camerapos = camera.location.copy()
+    hold_camerarot = camera.rotation_euler.copy()
     hold_x = bpy.context.scene.render.resolution_x
     hold_y = bpy.context.scene.render.resolution_y 
-    filepath = bpy.context.scene.render.filepath
+    hold_filepath = bpy.context.scene.render.filepath
     # Find objects that are hidden in viewport and hide them in render
     tempHidden = []
     for o in bpy.data.objects:
@@ -47,27 +46,30 @@ def snapshot(self,context,ob):
     bpy.context.scene.render.resolution_x = tool.resolution
     if bpy.ops.view3d.camera_to_view.poll():
         bpy.ops.view3d.camera_to_view()  
-    bpy.context.scene.render.filepath = os.path.join("/tmp", ob.name) 
-    file = os.path.join("/tmp", ob.name)+".png"
+
+    
+    filename = str(random.randint(0,100000000000))+".png"
+    filepath = str(os.path.abspath(os.path.join(os.sep, 'tmp', filename)))
+
+    bpy.context.scene.render.filepath = filepath
     #Render File, Mark Asset and Set Image
     bpy.ops.render.render(write_still = True)
     ob.asset_mark()
     override = bpy.context.copy()
     context.area.type = 'FILE_BROWSER'
     override['id'] = ob
-    bpy.ops.ed.lib_id_load_custom_preview(override,filepath=file)
+    bpy.ops.ed.lib_id_load_custom_preview(override,filepath=filepath)
     # Unhide the objects hidden for the render
     for o in tempHidden:
         o.hide_render = False
     #Cleanup
-    context.area.type = areatype
-    time.sleep(0.75)
-    os.unlink(file)
+    context.area.type = hold_areatype
+    os.unlink(filepath)
     bpy.context.scene.render.resolution_y = hold_y
     bpy.context.scene.render.resolution_x = hold_x
-    camera.location = camerapos
-    camera.rotation_euler = camerarot
-    bpy.context.scene.render.filepath = filepath
+    camera.location = hold_camerapos
+    camera.rotation_euler = hold_camerarot
+    bpy.context.scene.render.filepath = hold_filepath
     bpy.ops.view3d.view_camera()
 
 
