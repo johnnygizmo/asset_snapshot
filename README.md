@@ -2,12 +2,19 @@
 
 A Blender python script for getting asset browser custom preview images for objects and collections.
 
-Video Demo:
+**Installation:
+  - Click the code button on the toolbar above and choose "Download Zip"
+  - Open Blender Preferences and go to Add-Ons
+  - Click Install and browse to the downloaded file Double Click the File
+  - Check the box next to the Asset Browser Addon in the list
+
+**Video Demo:
 
 [![Alt text](https://img.youtube.com/vi/d0D8DuqpRt0/0.jpg)](https://www.youtube.com/watch?v=d0D8DuqpRt0)  
 
 
-Usage: 
+
+**Usage: 
  - Line up the object or collection in a viewport
  - Operator search for "snapshot"
  - choose either collection or object
