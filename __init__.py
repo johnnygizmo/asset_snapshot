@@ -123,7 +123,7 @@ class AssetSnapshotObject(Operator):
 class OBJECT_PT_panel(Panel):
     bl_label = "Asset Snapshot"
     bl_idname = "OBJECT_PT_asset_snapshot_panel"
-    bl_category = "asset_snapshot"
+    bl_category = "Asset Snapshot"
     bl_space_type = "VIEW_3D"   
     bl_region_type = "UI"
     @classmethod
@@ -134,7 +134,6 @@ class OBJECT_PT_panel(Panel):
         scene = context.scene
         tool = scene.asset_snapshot
         layout.prop(tool, "resolution")
-        layout.label(text='Sometimes crashes. SAVE YOUR FILES', icon="ERROR")
         layout.operator("view3d.object_preview")
         layout.operator("view3d.asset_snaphot_collection")
 
