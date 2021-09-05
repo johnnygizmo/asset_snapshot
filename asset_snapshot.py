@@ -1,4 +1,5 @@
 import bpy
+
 from bpy.types import (Panel,
                        # Menu,
                        Operator,
@@ -26,7 +27,6 @@ def snapshot(self,context,ob):
     scene = context.scene
     tool = scene.asset_snapshot
     #Save some basic settings
-    hold_areatype = context.area.type
     if bpy.context.scene.camera == None:
         bpy.ops.object.camera_add()
     camera = bpy.context.scene.camera    
@@ -44,10 +44,11 @@ def snapshot(self,context,ob):
     # Change Settings
     bpy.context.scene.render.resolution_y = tool.resolution
     bpy.context.scene.render.resolution_x = tool.resolution
+    switchback = False
     if bpy.ops.view3d.camera_to_view.poll():
-        bpy.ops.view3d.camera_to_view()  
+        bpy.ops.view3d.camera_to_view()
+        switchback = True
 
-    
     filename = str(random.randint(0,100000000000))+".png"
     filepath = str(os.path.abspath(os.path.join(os.sep, 'tmp', filename)))
 
@@ -56,21 +57,20 @@ def snapshot(self,context,ob):
     bpy.ops.render.render(write_still = True)
     ob.asset_mark()
     override = bpy.context.copy()
-    context.area.type = 'FILE_BROWSER'
     override['id'] = ob
     bpy.ops.ed.lib_id_load_custom_preview(override,filepath=filepath)
     # Unhide the objects hidden for the render
     for o in tempHidden:
         o.hide_render = False
     #Cleanup
-    context.area.type = hold_areatype
     os.unlink(filepath)
     bpy.context.scene.render.resolution_y = hold_y
     bpy.context.scene.render.resolution_x = hold_x
     camera.location = hold_camerapos
     camera.rotation_euler = hold_camerarot
     bpy.context.scene.render.filepath = hold_filepath
-    bpy.ops.view3d.view_camera()
+    if switchback:
+        bpy.ops.view3d.view_camera()
 
 
 class properties(PropertyGroup):
