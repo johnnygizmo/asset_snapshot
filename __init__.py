@@ -17,11 +17,14 @@ import os
 import random
 
 bl_info = {
-    'name': 'Asset Snapshot',
-    'category': 'View3d',
+    "name": "Asset Snapshot",
+    "author": "Johnny Matthews (guitargeek)",
+    "category": "View3d",
+    "location": "View3D > N Panel / Asset Browser Tab",
+    "version": (1, 0, 1),
     "blender": (3, 0, 0),
+    "description": "Mark active object as asset and render the current view as the asset preview",
 }
-
 
 def snapshot(self,context,ob):
     scene = context.scene
@@ -118,7 +121,7 @@ class AssetSnapshotObject(Operator):
 
 
 class OBJECT_PT_panel(Panel):
-    bl_label = "asset_snapshot"
+    bl_label = "Asset Snapshot"
     bl_idname = "OBJECT_PT_asset_snapshot_panel"
     bl_category = "asset_snapshot"
     bl_space_type = "VIEW_3D"   
