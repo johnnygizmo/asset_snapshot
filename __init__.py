@@ -29,21 +29,25 @@ bl_info = {
 def snapshot(self,context,ob):
     scene = context.scene
     tool = scene.asset_snapshot
-    #Save some basic settings
+    # Make sure we have a camera
     if bpy.context.scene.camera == None:
         bpy.ops.object.camera_add()
+    
+    #Save some basic settings
     camera = bpy.context.scene.camera    
     hold_camerapos = camera.location.copy()
     hold_camerarot = camera.rotation_euler.copy()
     hold_x = bpy.context.scene.render.resolution_x
     hold_y = bpy.context.scene.render.resolution_y 
     hold_filepath = bpy.context.scene.render.filepath
+    
     # Find objects that are hidden in viewport and hide them in render
     tempHidden = []
     for o in bpy.data.objects:
         if o.hide_get() == True:
             o.hide_render = True
             tempHidden.append(o)
+    
     # Change Settings
     bpy.context.scene.render.resolution_y = tool.resolution
     bpy.context.scene.render.resolution_x = tool.resolution
@@ -51,20 +55,29 @@ def snapshot(self,context,ob):
     if bpy.ops.view3d.camera_to_view.poll():
         bpy.ops.view3d.camera_to_view()
         switchback = True
-
+    
+    # Ensure outputfile is set to png (temporarily, at least)
+    previousFileFormat = scene.render.image_settings.file_format
+    if scene.render.image_settings.file_format != 'PNG':
+        scene.render.image_settings.file_format = 'PNG'
+    
     filename = str(random.randint(0,100000000000))+".png"
     filepath = str(os.path.abspath(os.path.join(os.sep, 'tmp', filename)))
-
     bpy.context.scene.render.filepath = filepath
+    
     #Render File, Mark Asset and Set Image
     bpy.ops.render.render(write_still = True)
     ob.asset_mark()
     override = bpy.context.copy()
     override['id'] = ob
     bpy.ops.ed.lib_id_load_custom_preview(override,filepath=filepath)
+    
     # Unhide the objects hidden for the render
     for o in tempHidden:
         o.hide_render = False
+    # Reset output file format
+    scene.render.image_settings.file_format = previousFileFormat
+    
     #Cleanup
     os.unlink(filepath)
     bpy.context.scene.render.resolution_y = hold_y
