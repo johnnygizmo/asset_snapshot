@@ -78,7 +78,7 @@ def snapshot(self,context,ob):
     override['id'] = ob
     bpy.ops.ed.lib_id_load_custom_preview(override,filepath=filepath)
     
-    # Unhide the objects hidden for the renderz
+    # Unhide the objects hidden for the render
     for o in tempHidden:
         o.hide_render = False
     # Reset output file format
@@ -105,7 +105,7 @@ class properties(PropertyGroup):
             soft_max=500,
             default=256
             )    
-#class propertie(PropertyGroup):                    
+                 
     lightstrength : IntProperty(
             name="Light Strength",
             description="Change the stregth of the light sorce",
@@ -177,7 +177,6 @@ class OBJECT_PT_panel(Panel):
 
 
 def register():
-    #bpy.utils.register_class(propertie)
     bpy.utils.register_class(properties)
     bpy.utils.register_class(AssetSnapshotCollection)
     bpy.utils.register_class(AssetSnapshotObject)
@@ -186,7 +185,6 @@ def register():
     bpy.types.Scene.asset_snapshot = PointerProperty(type=properties)
 
 def unregister():
-   # bpy.utils.unregister_class(propertie)
     bpy.utils.unregister_class(properties)
     bpy.utils.unregister_class(AssetSnapshotCollection)
     bpy.utils.unregister_class(AssetSnapshotObject)
