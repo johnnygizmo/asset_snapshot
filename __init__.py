@@ -8,7 +8,7 @@ from bpy.types import (Panel,
 from bpy.props import (
         FloatProperty,
         IntProperty,
-        # BoolProperty,
+        BoolProperty,
         # StringProperty,
         # FloatVectorProperty,
         PointerProperty,
@@ -57,9 +57,10 @@ def snapshot(self,context,ob):
     if bpy.ops.view3d.camera_to_view.poll():
         bpy.ops.view3d.camera_to_view()
         #Add Lights
-        bpy.ops.object.light_add(type='AREA', radius=tool.lightradius, align='VIEW', location=(camera.location), scale=(1, 1, 1))
-        light = bpy.context.active_object
-        light.data.energy = tool.lightstrength
+        if tool.uselight:
+            bpy.ops.object.light_add(type='AREA', radius=tool.lightradius, align='VIEW', location=(camera.location), scale=(1, 1, 1))
+            light = bpy.context.active_object
+            light.data.energy = tool.lightstrength
         switchback = True
     
     # Ensure outputfile is set to png (temporarily, at least)
@@ -91,7 +92,8 @@ def snapshot(self,context,ob):
     camera.location = hold_camerapos
     camera.rotation_euler = hold_camerarot
     #remove light
-    bpy.ops.object.delete()
+    if tool.uselight:
+        bpy.ops.object.delete()
     bpy.context.scene.render.filepath = hold_filepath
     if switchback:
         bpy.ops.view3d.view_camera()
@@ -120,6 +122,12 @@ class properties(PropertyGroup):
             min=0.1,
             soft_max=100,
             default=3
+            )
+            
+    uselight : BoolProperty(
+            name="Add light",
+            description="Add a light in front of the camera ",
+            default=True
             )
 
 class AssetSnapshotCollection(Operator):
@@ -170,8 +178,9 @@ class OBJECT_PT_panel(Panel):
         scene = context.scene
         tool = scene.asset_snapshot
         layout.prop(tool, "resolution")
+        layout.prop(tool, "uselight")
         layout.prop(tool, "lightstrength")
-        layout.prop(tool, "lightradius")
+        layout.prop(tool, "lightradius")        
         layout.operator("view3d.object_preview")
         layout.operator("view3d.asset_snaphot_collection")
 
