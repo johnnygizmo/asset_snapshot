@@ -6,7 +6,7 @@ from bpy.types import (Panel,
                        PropertyGroup,
                        )
 from bpy.props import (
-        # FloatProperty,
+        FloatProperty,
         IntProperty,
         # BoolProperty,
         # StringProperty,
@@ -21,7 +21,7 @@ bl_info = {
     "author": "Johnny Matthews (guitargeek)",
     "category": "View3d",
     "location": "View3D > N Panel / Asset Browser Tab",
-    "version": (1, 0, 1),
+    "version": (1, 0, 2),
     "blender": (3, 0, 0),
     "description": "Mark active object as asset and render the current view as the asset preview",
 }
@@ -41,6 +41,8 @@ def snapshot(self,context,ob):
     hold_y = bpy.context.scene.render.resolution_y 
     hold_filepath = bpy.context.scene.render.filepath
     
+    
+    
     # Find objects that are hidden in viewport and hide them in render
     tempHidden = []
     for o in bpy.data.objects:
@@ -54,6 +56,10 @@ def snapshot(self,context,ob):
     switchback = False
     if bpy.ops.view3d.camera_to_view.poll():
         bpy.ops.view3d.camera_to_view()
+        #Add Lights
+        bpy.ops.object.light_add(type='AREA', radius=tool.lightradius, align='VIEW', location=(camera.location), scale=(1, 1, 1))
+        light = bpy.context.active_object
+        light.data.energy = tool.lightstrength
         switchback = True
     
     # Ensure outputfile is set to png (temporarily, at least)
@@ -72,7 +78,7 @@ def snapshot(self,context,ob):
     override['id'] = ob
     bpy.ops.ed.lib_id_load_custom_preview(override,filepath=filepath)
     
-    # Unhide the objects hidden for the render
+    # Unhide the objects hidden for the renderz
     for o in tempHidden:
         o.hide_render = False
     # Reset output file format
@@ -84,6 +90,8 @@ def snapshot(self,context,ob):
     bpy.context.scene.render.resolution_x = hold_x
     camera.location = hold_camerapos
     camera.rotation_euler = hold_camerarot
+    #remove light
+    bpy.ops.object.delete()
     bpy.context.scene.render.filepath = hold_filepath
     if switchback:
         bpy.ops.view3d.view_camera()
@@ -96,8 +104,23 @@ class properties(PropertyGroup):
             min=1,
             soft_max=500,
             default=256
+            )    
+#class propertie(PropertyGroup):                    
+    lightstrength : IntProperty(
+            name="Light Strength",
+            description="Change the stregth of the light sorce",
+            min=1,
+            soft_max=10000,
+            default=1000
             )
-
+            
+    lightradius : FloatProperty(
+            name="Light Radius",
+            description="Change the radius of the light sorce",
+            min=0.1,
+            soft_max=100,
+            default=3
+            )
 
 class AssetSnapshotCollection(Operator):
     """Create a preview of a collection"""
@@ -147,11 +170,14 @@ class OBJECT_PT_panel(Panel):
         scene = context.scene
         tool = scene.asset_snapshot
         layout.prop(tool, "resolution")
+        layout.prop(tool, "lightstrength")
+        layout.prop(tool, "lightradius")
         layout.operator("view3d.object_preview")
         layout.operator("view3d.asset_snaphot_collection")
 
 
 def register():
+    #bpy.utils.register_class(propertie)
     bpy.utils.register_class(properties)
     bpy.utils.register_class(AssetSnapshotCollection)
     bpy.utils.register_class(AssetSnapshotObject)
@@ -160,6 +186,7 @@ def register():
     bpy.types.Scene.asset_snapshot = PointerProperty(type=properties)
 
 def unregister():
+   # bpy.utils.unregister_class(propertie)
     bpy.utils.unregister_class(properties)
     bpy.utils.unregister_class(AssetSnapshotCollection)
     bpy.utils.unregister_class(AssetSnapshotObject)
