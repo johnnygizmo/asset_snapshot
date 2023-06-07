@@ -13,15 +13,16 @@ from bpy.props import (
         # FloatVectorProperty,
         PointerProperty,
         )
+from bpy import context
 import os
 import random
 
 bl_info = {
     "name": "Asset Snapshot",
-    "author": "Johnny Matthews (guitargeek)",
+    "author": "Johnny Matthews (guitargeek), Draise",
     "category": "View3d",
     "location": "View3D > N Panel / Asset Browser Tab",
-    "version": (1, 0, 1),
+    "version": (1, 0, 2),
     "blender": (3, 0, 0),
     "description": "Mark active object as asset and render the current view as the asset preview",
 }
@@ -68,9 +69,16 @@ def snapshot(self,context,ob):
     #Render File, Mark Asset and Set Image
     bpy.ops.render.render(write_still = True)
     ob.asset_mark()
-    override = bpy.context.copy()
-    override['id'] = ob
-    bpy.ops.ed.lib_id_load_custom_preview(override,filepath=filepath)
+    
+    ### Draise - Removed due to not working with 4.0.0
+        
+    #context_override = bpy.context.copy()
+    #context_override['id'] = ob
+    #bpy.ops.ed.lib_id_load_custom_preview(context_override,filepath=filepath)
+
+    ### Draise - Added to work with 4.0.0
+    with context.temp_override(id=ob): 
+        bpy.ops.ed.lib_id_load_custom_preview(filepath=filepath) #
     
     # Unhide the objects hidden for the render
     for o in tempHidden:
@@ -105,6 +113,7 @@ class AssetSnapshotCollection(Operator):
     bl_label = "Asset Snapshot - Collection"
     bl_options = {'REGISTER', 'UNDO'}
     @classmethod
+    #def poll(cls, context):
     def poll(cls, context):
         if context.area.type != 'VIEW_3D':
             return False
