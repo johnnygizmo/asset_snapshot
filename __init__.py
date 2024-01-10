@@ -22,10 +22,16 @@ bl_info = {
     "author": "Johnny Matthews (guitargeek), Draise, Daniel Ayala",
     "category": "View3d",
     "location": "View3D > N Panel / Asset Browser Tab",
-    "version": (2, 0, 0),
+    "version": (2, 0, 1),
     "blender": (4, 0, 0),
     "description": "Mark active object as asset and render the current view as the asset preview",
 }
+
+def is_in_collection(col, obj):
+    for o in col.all_objects:
+        if obj is o:
+            return True
+    return False
 
 def snapshot_all_selected(self, context):
     selected_objects = bpy.context.selected_objects
@@ -67,15 +73,10 @@ def snapshot(self,context,ob,is_collection):
     for o in bpy.data.objects:
         o.select_set(False)
         if (tool.isolate_object and o.type == 'MESH') or o.hide_get() == True:
-            o.hide_render = True
-            tempHidden.append(o)
-    if(not is_collection):
-        ob.hide_render = ob.hide_get()
-        ob.select_set(True)
-    else:
-        for o in ob.all_objects:
-            if o is not None:
-                o.hide_render = o.hide_get()
+            if((not is_collection and (o != ob)) or (is_collection and (not is_in_collection(ob, o)))):
+                o.hide_render = True
+                tempHidden.append(o)
+            else:
                 o.select_set(True)
 
     if(tool.use_ortho):
