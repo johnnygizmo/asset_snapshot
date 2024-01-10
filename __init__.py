@@ -22,7 +22,7 @@ bl_info = {
     "author": "Johnny Matthews (guitargeek), Draise, Daniel Ayala",
     "category": "View3d",
     "location": "View3D > N Panel / Asset Browser Tab",
-    "version": (2, 0, 1),
+    "version": (2, 0, 2),
     "blender": (4, 0, 0),
     "description": "Mark active object as asset and render the current view as the asset preview",
 }
@@ -72,7 +72,7 @@ def snapshot(self,context,ob,is_collection):
     tempHidden = []
     for o in bpy.data.objects:
         o.select_set(False)
-        if (tool.isolate_object and o.type == 'MESH') or o.hide_get() == True:
+        if (tool.isolate_object and o.type in ['MESH','FONT','CURVE','VOLUME','SURFACE','META','CURVES','GREASEPENCIL','POINTCLOUD']) or o.hide_get() == True:
             if((not is_collection and (o != ob)) or (is_collection and (not is_in_collection(ob, o)))):
                 o.hide_render = True
                 tempHidden.append(o)
